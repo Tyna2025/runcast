@@ -41,6 +41,5 @@ są wymagane jako wejście). Szczegóły w `pipeline.ipynb`, metryki w `model/me
 pip install -r requirements.txt
 cp .env.example .env     # i wpisz klucze OpenAI, Langfuse i Spaces
 # pipeline.ipynb — trening: dane z DO Spaces -> czyszczenie -> feature selection -> model lokalnie i w Spaces
-# (train.py to starsza wersja tego samego treningu jako skrypt)
 streamlit run app.py
 ```
