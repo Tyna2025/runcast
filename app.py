@@ -231,7 +231,9 @@ with prog:
     pokrycie = pakiet["metryki"][f"{km}km"]["pokrycie_przedzialu"]
     c1.markdown(f'<div class="range">{pokrycie:.0%} szans: {fmt(dol)} – {fmt(gora)}</div>', unsafe_allow_html=True)
     c2.metric("Tempo", f"{fmt(tempo, False)} /km")
-    c2.metric(f"Szybciej niż ({'K' if kobieta else 'M'}{dekada})", f"{szybciej_niz:.0f}% biegaczy")
+    # Grupa porównawcza: płeć + dekada wieku (w danych 16–29 lat to jedna grupa, 70+ też)
+    wiek_grupy = "do 29 lat" if dekada == 20 else ("70+ lat" if dekada == 70 else f"{dekada}–{dekada + 9} lat")
+    c2.metric(f"Szybciej niż ({'kobiety' if kobieta else 'mężczyźni'} {wiek_grupy})", f"{szybciej_niz:.0f}% biegaczy")
 
     st.subheader("Gdzie jesteś w stawce")
     fig = go.Figure(go.Histogram(x=grupa / 60, nbinsx=60, marker_color="#3A4560"))

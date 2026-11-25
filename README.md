@@ -1,6 +1,6 @@
 # RunCast · Half Marathon
 
-**Aplikacja online:** _(link pojawi się po wdrożeniu na DigitalOcean App Platform)_
+**Aplikacja online:** https://runcast-c23zq.ondigitalocean.app
 
 Aplikacja Streamlit, w której użytkownik przedstawia się w polu tekstowym, a LLM (OpenAI) wyciąga z tekstu
 wiek, płeć i czas na **5 km** (albo 10 km). Brakujące dane aplikacja wypisuje, a wywołania LLM trafiają do Langfuse.
