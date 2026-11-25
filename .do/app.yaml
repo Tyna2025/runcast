@@ -1,0 +1,28 @@
+# Specyfikacja aplikacji dla DigitalOcean App Platform.
+# Wdrożenie: doctl apps create --spec .do/app.yaml
+# Klucze (OpenAI, Langfuse) NIE są w tym pliku — dodaje się je przy wdrożeniu jako zmienne typu SECRET.
+name: runcast
+region: fra
+services:
+  - name: web
+    git:
+      repo_clone_url: https://github.com/Tyna2025/runcast.git
+      branch: main
+    environment_slug: python
+    run_command: streamlit run app.py --server.port 8080 --server.address 0.0.0.0 --server.headless true
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    envs:
+      - key: OPENAI_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: LANGFUSE_PUBLIC_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: LANGFUSE_SECRET_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: LANGFUSE_HOST
+        scope: RUN_TIME
+        value: https://cloud.langfuse.com

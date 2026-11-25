@@ -1,0 +1,12 @@
+name: tempomat
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - -r requirements.txt
+      # tylko do notebooka pipeline.ipynb
+      - boto3>=1.34
+      - ipykernel
+      - matplotlib

@@ -1,0 +1,17 @@
+{
+  "5km": {
+    "mae_min": 5.45,
+    "mae_riegel_min": 7.77,
+    "r2": 0.867,
+    "pokrycie_przedzialu": 0.805,
+    "n_test": 9975
+  },
+  "10km": {
+    "mae_min": 3.69,
+    "mae_riegel_min": 3.59,
+    "r2": 0.935,
+    "pokrycie_przedzialu": 0.844,
+    "n_test": 9975
+  },
+  "n_trening_finalny": 17875
+}
