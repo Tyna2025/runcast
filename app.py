@@ -46,6 +46,11 @@ st.set_page_config(page_title="RunCast · Half Marathon", page_icon="⏱️", la
 st.markdown(f"""<style>
 .big {{ font-family: monospace; font-size: 4rem; font-weight: 700; color: {AKCENT}; line-height: 1; }}
 .range {{ font-family: monospace; color: {SZARY}; margin-top: .4rem; }}
+.pasek {{ position: relative; height: 14px; background: #2A3245; border-radius: 7px; margin: .2rem 0 .3rem; }}
+.pasek-wyp {{ height: 100%; border-radius: 7px; background: linear-gradient(90deg, #3A4560, {AKCENT}); }}
+.pasek-kropka {{ position: absolute; top: 50%; width: 22px; height: 22px; border-radius: 50%;
+  background: {AKCENT}; border: 4px solid #0E1117; transform: translate(-50%, -50%); }}
+.pasek-opis {{ display: flex; justify-content: space-between; font-size: .8rem; color: {SZARY}; }}
 </style>""", unsafe_allow_html=True)
 
 
@@ -181,6 +186,14 @@ def sprawdz(dane):
     return wiek, kobieta, km, czas, braki, bledy
 
 
+def pasek(procent):
+    """Pasek 0–100% z kropką w miejscu użytkownika (lewo = wolniej, prawo = szybciej)."""
+    p = min(max(procent, 2), 98)  # kropka nie wychodzi poza pasek
+    return (f'<div class="pasek"><div class="pasek-wyp" style="width:{p:.0f}%"></div>'
+            f'<div class="pasek-kropka" style="left:{p:.0f}%"></div></div>'
+            '<div class="pasek-opis"><span>wolniej</span><span>szybciej</span></div>')
+
+
 def wykres(fig):
     fig.update_layout(height=340, margin=dict(l=10, r=10, t=30, b=10), showlegend=False,
                       paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
@@ -252,6 +265,7 @@ with prog:
     # Grupa porównawcza: płeć + dekada wieku (w danych 16–29 lat to jedna grupa, 70+ też)
     wiek_grupy = "do 29 lat" if dekada == 20 else ("70+ lat" if dekada == 70 else f"{dekada}–{dekada + 9} lat")
     c2.metric(f"Szybciej niż ({'kobiety' if kobieta else 'mężczyźni'} {wiek_grupy})", f"{szybciej_niz:.0f}% biegaczy")
+    c2.markdown(pasek(szybciej_niz), unsafe_allow_html=True)
 
     st.subheader("Gdzie jesteś w stawce")
     fig = go.Figure(go.Histogram(x=grupa / 60, nbinsx=60, marker_color="#3A4560"))
