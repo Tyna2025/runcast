@@ -3,12 +3,17 @@
 Użytkownik przedstawia się w polu tekstowym, LLM (OpenAI) wyciąga z tekstu
 płeć, wiek i czas na 5 km do słownika, a model liczy prognozę czasu na mecie
 z przedziałem, plan międzyczasów, miejsce w stawce i kalkulator celu.
-Wywołania LLM trafiają do Langfuse. Model trenuje train.py -> model/tempomat.joblib.
+Wywołania LLM trafiają do Langfuse. Model trenuje pipeline.ipynb i zapisuje go do
+DigitalOcean Spaces; aplikacja pobiera stamtąd najnowszą wersję (zapas: model/tempomat.joblib).
 """
+import io
 import json
+import logging
+import os
 import re
 from datetime import date
 
+import boto3
 import joblib
 import openai
 import pandas as pd
@@ -44,9 +49,22 @@ st.markdown(f"""<style>
 </style>""", unsafe_allow_html=True)
 
 
-@st.cache_resource
+MODEL_SPACES = "runcast/models/tempomat.joblib"  # tu zapisuje model pipeline.ipynb
+MODEL_LOKALNY = "model/tempomat.joblib"
+SPACES_ENV = ("AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_ENDPOINT_URL_S3", "BUCKET_NAME")
+
+
+@st.cache_resource(ttl=3600)  # co godzinę sprawdzamy, czy w Spaces jest nowsza wersja
 def wczytaj_model():
-    return joblib.load("model/tempomat.joblib")
+    """Najnowszy model z DigitalOcean Spaces; gdy brak konfiguracji albo błąd — plik lokalny."""
+    if all(os.getenv(k) for k in SPACES_ENV):
+        try:
+            s3 = boto3.client("s3", endpoint_url=os.getenv("AWS_ENDPOINT_URL_S3"))
+            obj = s3.get_object(Bucket=os.getenv("BUCKET_NAME"), Key=MODEL_SPACES)
+            return joblib.load(io.BytesIO(obj["Body"].read())), "DigitalOcean Spaces"
+        except Exception as e:  # pylint: disable=broad-except
+            logging.warning("Nie udało się pobrać modelu ze Spaces (%s) — używam pliku lokalnego.", e)
+    return joblib.load(MODEL_LOKALNY), "plik lokalny w repozytorium"
 
 
 def parsuj_czas(txt):
@@ -170,7 +188,7 @@ def wykres(fig):
 
 
 # ---------- dane wejściowe ----------
-pakiet = wczytaj_model()
+pakiet, zrodlo_modelu = wczytaj_model()
 modele = pakiet["modele"]
 
 st.title("⏱️ RunCast · Half Marathon")
@@ -284,6 +302,7 @@ Model to `HistGradientBoostingRegressor` z regresją kwantylową (5., 50. i 95. 
 wejścia 5 km i 10 km. Cechy: wiek, płeć i czas na wybranym dystansie. Osobne modele przewidują
 międzyczasy na 10, 15 i 20 km. Walidacja: trening na edycji 2023, test na 2024.
 """)
+    st.markdown(f"**Model wczytany z:** {zrodlo_modelu} · **wersja:** {pakiet.get('wersja', 'brak')}")
     met = pakiet["metryki"]
     st.dataframe(pd.DataFrame([
         {"Wejście": k, "Błąd modelu [min]": v["mae_min"], "Błąd wzoru Riegela [min]": v["mae_riegel_min"],

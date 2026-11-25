@@ -26,3 +26,16 @@ services:
       - key: LANGFUSE_HOST
         scope: RUN_TIME
         value: https://cloud.langfuse.com
+      # Model pobierany z DigitalOcean Spaces (klucz tylko do odczytu)
+      - key: AWS_ACCESS_KEY_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: AWS_SECRET_ACCESS_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: AWS_ENDPOINT_URL_S3
+        scope: RUN_TIME
+        value: https://fra1.digitaloceanspaces.com
+      - key: BUCKET_NAME
+        scope: RUN_TIME
+        value: runcast-bf51a2
